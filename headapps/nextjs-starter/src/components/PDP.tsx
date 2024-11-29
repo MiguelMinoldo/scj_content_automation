@@ -2,9 +2,9 @@ import React from 'react';
 import {
   Field,
   Text,
-  RichText as JssRichText,
   ImageField,
   NextImage as JssImage,
+  useSitecoreContext,
 } from '@sitecore-jss/sitecore-jss-nextjs';
 
 interface Fields {
@@ -23,7 +23,7 @@ interface Fields {
 
 export type PDPProps = {
   params: { [key: string]: string };
-  fields: Fields;
+  fields?: Fields;
 };
 
 const stripHtmlTags = (html: string) => {
@@ -31,70 +31,65 @@ const stripHtmlTags = (html: string) => {
   return doc.body.textContent || '';
 };
 
-export const Default = (props: PDPProps): JSX.Element => {
-  const text = props.fields ? (
-    <JssRichText field={props.fields.Text} />
-  ) : (
-    <span className="is-empty-hint">Rich text</span>
-  );
+export const Default = (): JSX.Element => {
+  const { sitecoreContext } = useSitecoreContext();
+  const fields: Fields | undefined = sitecoreContext?.route?.fields as Fields | undefined;
 
-  const productTitle = props.fields.ProductTitle ? (
+  if (!fields) {
+    return <div>Loading...</div>; // Handle loading or error state
+  }
+
+  const productTitle = fields.ProductTitle ? (
     <h2>
       <strong>
-        <Text field={props.fields.ProductTitle}></Text>
+        <Text field={fields.ProductTitle}></Text>
       </strong>
     </h2>
   ) : null;
 
-  const upc = props.fields.UPC ? (
+  const upc = fields.UPC ? (
     <p>
-      <strong>UPC:</strong> <Text field={props.fields.UPC}></Text>
+      <strong>UPC:</strong> <Text field={fields.UPC}></Text>
     </p>
   ) : null;
 
-  const subCategory = props.fields.SubCategory ? (
+  const subCategory = fields.SubCategory ? (
     <p>
-      <strong>Sub Category:</strong> <Text field={props.fields.SubCategory}></Text>
+      <strong>Sub Category:</strong> <Text field={fields.SubCategory}></Text>
     </p>
   ) : null;
 
-  const fragrance = props.fields.Fragrance ? (
+  const fragrance = fields.Fragrance ? (
     <p>
-      <strong>Fragrance:</strong> <Text field={props.fields.Fragrance}></Text>
+      <strong>Fragrance:</strong> <Text field={fields.Fragrance}></Text>
     </p>
   ) : null;
 
-  const productID = props.fields.ProductID ? (
+  const productID = fields.ProductID ? (
     <p>
-      <strong>Product ID:</strong> <Text field={props.fields.ProductID}></Text>
+      <strong>Product ID:</strong> <Text field={fields.ProductID}></Text>
     </p>
   ) : null;
 
-  const title = props.fields.Title ? (
+  const title = fields.Title ? (
     <p>
-      <strong>Title:</strong> <Text field={props.fields.Title}></Text>
+      <strong>Title:</strong> <Text field={fields.Title}></Text>
     </p>
   ) : null;
 
-  const productDescription = props.fields.ProductDescription ? (
+  const productDescription = fields.ProductDescription ? (
     <p>
-      <strong>Description:</strong> {stripHtmlTags(props.fields.ProductDescription.value)}
+      <strong>Description:</strong> {stripHtmlTags(fields.ProductDescription.value)}
     </p>
   ) : null;
 
-  const fragranceThemeColor = props.fields.FragranceThemeColor ? (
+  const fragranceThemeColor = fields.FragranceThemeColor ? (
     <p>
-      <strong>Fragrance Theme Color:</strong> <Text field={props.fields.FragranceThemeColor}></Text>
+      <strong>Fragrance Theme Color:</strong> <Text field={fields.FragranceThemeColor}></Text>
     </p>
   ) : null;
 
-  const productImage = props.fields.ImageUrl ? <JssImage field={props.fields.ImageUrl} /> : null;
-
-  const price = props.fields.Price ? (
-    <p style={{ fontSize: '1.5rem', color: '#e67e22' }}>
-      Price: <strong>{props.fields.Price.value}</strong>
-    </p>
-  ) : null;
+  const productImage = fields.ImageUrl ? <JssImage field={fields.ImageUrl} /> : null;
 
   const addToCartButton = (
     <button
@@ -133,8 +128,6 @@ export const Default = (props: PDPProps): JSX.Element => {
       >
         {productImage}
         <div style={{ marginLeft: '20px' }}>
-          {price}
-          {text}
           {upc}
           {subCategory}
           {fragrance}
